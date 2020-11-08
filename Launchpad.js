@@ -4,8 +4,10 @@ function Launchpad () {
     'init', 'start', 'reset', 'update', 'flush', 'exit',
 
     // Methods
+    'onSysex', 'sendSysex',
     'onMidi', 'sendMidi', 'sendNote', 'sendCC',
     'getColorForPurpose', 'getNoteForPosition',
+    'updateKeyIndicator',
     'getKeyTranslationTable', 'updateKeyTranslationTable',
     'updateLED', 'updateColorForPosition', 'updateColors',
   ]
@@ -27,18 +29,22 @@ Launchpad.prototype = {
   },
 
   start () {
-    this.noteInput = this.midiIn.createNoteInput('Launchpad ???')
+    this.deviceInfo.setup(this)
+
+    this.noteInput = this.midiIn.createNoteInput(this.deviceInfo.name)
     this.noteInput.setShouldConsumeEvents(false)
+    this.midiIn.setSysexCallback(this.onSysex)
     this.midiIn.setMidiCallback(this.onMidi)
 
     this.LEDUpdateQueue = []
+
+    // Device Id request
+    this.sendSysex('F07E7F0601F7')
 
     this.reset()
   },
 
   reset () {
-    this.sendMidi(MIDIMessageType.CONTROL_CHANGE, 0, 0)
-
     this.root = 0
 
     this.xStep = 1
@@ -65,23 +71,74 @@ Launchpad.prototype = {
   },
 
   exit () {
-
+    this.deviceInfo.winddown(this.midiOut)
   },
 
   // Getters, setters
 
-  set root (r) {
-    this._root = ((r % 12) + 12) % 12
-  },
+  set root (r) { this._root = ((r % 12) + 12) % 12; this.updateKeyIndicator() },
+  get root () { return this._root },
 
-  get root () {
-    return this._root
-  },
+  // set xStep (v) { this._xStep = v; this.update() },
+  // get xStep () { return this._xStep },
+
+  // set yStep (v) { this._yStep = v; this.update() },
+  // get yStep () { return this._yStep },
+
+  // set offset (v) { this._offset = v; this.update() },
+  // get offset () { return this._offset },
 
   // Methods
 
-  onMidi (status, data1, data2) {
+  onSysex (data) {
+    println(data)
+  },
 
+  sendSysex (data) {
+    this.midiOut.sendSysex(data)
+  },
+
+  onMidi (status, data1, data2) {
+    // https://github.com/git-moss/DrivenByMoss/blob/e75d2dadb14819bf3db10f5e5f9b43ea641893bb/src/main/java/de/mossgrabers/framework/command/aftertouch/AftertouchAbstractViewCommand.java#L55
+    if (isKeyPressure(status)) {
+      this.noteInput.sendRawMidiEvent(
+        status,
+        this.getNoteForPosition(this.deviceInfo.noteToPosition(data1)),
+        data2
+      )
+    } else {
+      // const button = this.deviceInfo.midiEventToButton(status, data1)
+
+      if (data2 > 0) {
+        switch (this.deviceInfo.midiEventToButton(status, data1)) {
+          case Button.SIX:
+            this.offset += this.xStep; this.update()
+            break
+          case Button.SEVEN:
+            this.offset -= this.xStep; this.update()
+            break
+          case Button.B:
+            this.offset -= this.yStep; this.update()
+            break
+          case Button.C:
+            this.offset += this.yStep; this.update()
+            break
+
+          case Button.THREE:
+            this.root -= this.xStep; this.update()
+            break
+          case Button.FOUR:
+            this.root += this.xStep; this.update()
+            break
+          case Button.E:
+            this.root += this.yStep; this.update()
+            break
+          case Button.F:
+            this.root -= this.yStep; this.update()
+            break
+        }
+      }
+    }
   },
 
   sendMidi (status, data1, data2) {
@@ -107,6 +164,22 @@ Launchpad.prototype = {
     return Math.max(0, Math.min(127,
       this.offset + position.y * this.yStep + position.x * this.xStep
     ))
+  },
+
+  updateKeyIndicator () {
+    const numberedNote = numberedNotes[this.root]
+    range(7).forEach(i => {
+      this.updateLED(
+        { y: (7 - (2 + i) % 7), x: 8 },
+        (numberedNote.base - 1) === i
+          ? (
+              numberedNote.sharp
+                ? this.deviceInfo.colors[defaultColor[ColorPurpose.KEY_INDICATOR_SHARP]]
+                : this.deviceInfo.colors[defaultColor[ColorPurpose.KEY_INDICATOR]]
+            )
+          : CommonColor.OFF
+      )
+    }, this)
   },
 
   getKeyTranslationTable () {

@@ -26,6 +26,8 @@ const ColorPurpose = {
   OFF_KEY_DIM: 'OFF_KEY_DIM', OFF_KEY_BRIGHT: 'OFF_KEY_BRIGHT',
   ROOT_DIM   : 'ROOT_DIM'   , ROOT_BRIGHT   : 'ROOT_BRIGHT'   ,
 
+  KEY_INDICATOR: 'KEY_INDICATOR', KEY_INDICATOR_SHARP: 'KEY_INDICATOR_SHARP',
+
   SUSTAIN: 'SUSTAIN',
 }
 
@@ -52,6 +54,9 @@ const defaultColor = {
   [ColorPurpose.ROOT_DIM]: CommonColor.LOW_GREEN,
   [ColorPurpose.ROOT_BRIGHT]: CommonColor.HIGH_GREEN,
 
+  [ColorPurpose.KEY_INDICATOR]: CommonColor.LOW_GREEN,
+  [ColorPurpose.KEY_INDICATOR_SHARP]: CommonColor.LOW_RED,
+
   [ColorPurpose.SUSTAIN]: CommonColor.MID_RED,
 }
 
@@ -75,3 +80,59 @@ const MIDIMessageType = {
   CHANNEL_PRESSURE : 0xD0, // 208
   PITCH_BEND       : 0xE0, // 224
 }
+
+const Button = {
+  ONE: 'ONE',
+  TWO: 'TWO',
+  THREE: 'THREE',
+  FOUR: 'FOUR',
+  FIVE: 'FIVE',
+  SIX: 'SIX',
+  SEVEN: 'SEVEN',
+  EIGHT: 'EIGHT',
+  A: 'A',
+  B: 'B',
+  C: 'C',
+  D: 'D',
+  E: 'E',
+  F: 'F',
+  G: 'G',
+  H: 'H',
+}
+
+const topButtons = [
+  Button.ONE,
+  Button.TWO,
+  Button.THREE,
+  Button.FOUR,
+  Button.FIVE,
+  Button.SIX,
+  Button.SEVEN,
+  Button.EIGHT,
+]
+
+const sideButtons = [
+  Button.A,
+  Button.B,
+  Button.C,
+  Button.D,
+  Button.E,
+  Button.F,
+  Button.G,
+  Button.H,
+]
+
+const numberedNotes = [
+  { base: 1, sharp: false },
+  { base: 1, sharp: true },
+  { base: 2, sharp: false },
+  { base: 2, sharp: true },
+  { base: 3, sharp: false },
+  { base: 4, sharp: false },
+  { base: 4, sharp: true },
+  { base: 5, sharp: false },
+  { base: 5, sharp: true },
+  { base: 6, sharp: false },
+  { base: 6, sharp: true },
+  { base: 7, sharp: false },
+]
