@@ -28,7 +28,7 @@ const deviceInfo = {
     midiEventToButton: (status, data1) => (
       (isChannelController(status) && 104 <= data1 && data1 <= 111)
         ? topButtons[data1 - 104]
-        : isNoteOn(status) && (data1 & 0xF === 8)
+        : isNoteOn(status) && ((data1 & 0xF) === 8)
         ? sideButtons[data1 >> 4]
         : null
     ),

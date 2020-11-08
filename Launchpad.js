@@ -23,7 +23,7 @@ Launchpad.prototype = {
     this.midiOut = midiOut
     this.deviceInfo = deviceInfo
 
-    // println(defaultColor[ColorPurpose.SUSTAIN])
+    println(`${this.deviceInfo.name} initialized!`)
 
     this.start()
   },
@@ -39,7 +39,8 @@ Launchpad.prototype = {
     this.LEDUpdateQueue = []
 
     // Device Id request
-    this.sendSysex('F07E7F0601F7')
+    // this.sendSysex('F07E7F0601F7')
+    println(`${this.deviceInfo.name} started!`)
 
     this.reset()
   },
@@ -72,6 +73,52 @@ Launchpad.prototype = {
 
   exit () {
     this.deviceInfo.winddown(this.midiOut)
+  },
+
+  // Properties
+
+  actions: {
+    [Button.ONE  ]: { press () {}, release () {}},
+    [Button.TWO  ]: { press () {}, release () {}},
+    [Button.THREE]: {
+      press () { this.root -= this.xStep; this.update() },
+      release () {}
+    },
+    [Button.FOUR ]: {
+      press () { this.root += this.xStep; this.update() },
+      release () {}
+    },
+    [Button.FIVE ]: { press () {}, release () {}},
+    [Button.SIX  ]: {
+      press () { this.offset += this.xStep; this.update() },
+      release () {}
+    },
+    [Button.SEVEN]: {
+      press () { this.offset -= this.xStep; this.update() },
+      release () {}
+    },
+    [Button.EIGHT]: { press () {}, release () {}},
+    [Button.A    ]: { press () {}, release () {}},
+    [Button.B    ]: {
+      press () { this.offset -= this.yStep; this.update() },
+      release () {}
+    }
+    ,
+    [Button.C    ]: {
+      press () { this.offset += this.yStep; this.update() },
+      release () {}
+    },
+    [Button.D    ]: { press () {}, release () {}},
+    [Button.E    ]: {
+      press () { this.root += this.yStep; this.update() },
+      release () {}
+    },
+    [Button.F    ]: {
+      press () { this.root -= this.yStep; this.update() },
+      release () {}
+    },
+    [Button.G    ]: { press () {}, release () {}},
+    [Button.H    ]: { press () {}, release () {}},
   },
 
   // Getters, setters
@@ -107,36 +154,9 @@ Launchpad.prototype = {
         data2
       )
     } else {
-      // const button = this.deviceInfo.midiEventToButton(status, data1)
-
-      if (data2 > 0) {
-        switch (this.deviceInfo.midiEventToButton(status, data1)) {
-          case Button.SIX:
-            this.offset += this.xStep; this.update()
-            break
-          case Button.SEVEN:
-            this.offset -= this.xStep; this.update()
-            break
-          case Button.B:
-            this.offset -= this.yStep; this.update()
-            break
-          case Button.C:
-            this.offset += this.yStep; this.update()
-            break
-
-          case Button.THREE:
-            this.root -= this.xStep; this.update()
-            break
-          case Button.FOUR:
-            this.root += this.xStep; this.update()
-            break
-          case Button.E:
-            this.root += this.yStep; this.update()
-            break
-          case Button.F:
-            this.root -= this.yStep; this.update()
-            break
-        }
+      const button = this.deviceInfo.midiEventToButton(status, data1)
+      if (button) {
+        this.actions[button][data2 ? 'press' : 'release'].apply(this)
       }
     }
   },

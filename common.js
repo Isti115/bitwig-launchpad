@@ -136,3 +136,10 @@ const numberedNotes = [
   { base: 6, sharp: true },
   { base: 7, sharp: false },
 ]
+
+const SysExMessages = {
+  // Scroll "Hello world!":
+  startHelloWorld: 'F0002029097C0548656C6C6F2002776f726c6421F7',
+  // Stop scrolling:
+  stopText: 'F00020290900F7',
+}
