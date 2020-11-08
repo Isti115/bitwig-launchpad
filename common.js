@@ -49,7 +49,7 @@ const defaultColor = {
   [ColorPurpose.MINOR_BRIGHT]: CommonColor.HIGH_RED,
 
   [ColorPurpose.OFF_KEY_DIM]: CommonColor.OFF,
-  [ColorPurpose.OFF_KEY_BRIGHT]: CommonColor.HIGH_YELLOW,
+  [ColorPurpose.OFF_KEY_BRIGHT]: CommonColor.MID_YELLOW,
 
   [ColorPurpose.ROOT_DIM]: CommonColor.LOW_GREEN,
   [ColorPurpose.ROOT_BRIGHT]: CommonColor.HIGH_GREEN,

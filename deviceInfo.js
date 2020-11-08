@@ -58,9 +58,26 @@ const deviceInfo = {
     setup: lp => { lp.sendSysex('F0002029020C0E01F7') },
     colors: {
       [CommonColor.OFF]: 0,
-      [CommonColor.LOW_RED]: 6,
-      [CommonColor.LOW_AMBER]: 9,
-      [CommonColor.LOW_GREEN]: 18,
+
+      [CommonColor.LOW_RED]: 7,
+      [CommonColor.MID_RED]: 6,
+      [CommonColor.HIGH_RED]: 5,
+
+      [CommonColor.LOW_AMBER]: 11,
+      [CommonColor.MID_AMBER]: 10,
+      [CommonColor.HIGH_AMBER]: 9,
+
+      [CommonColor.LOW_YELLOW]: 15,
+      [CommonColor.MID_YELLOW]: 14,
+      [CommonColor.HIGH_YELLOW]: 13,
+
+      // [CommonColor.LOW_GREEN]: 23,
+      // [CommonColor.MID_GREEN]: 22,
+      // [CommonColor.HIGH_GREEN]: 21,
+      //
+      [CommonColor.LOW_GREEN]: 19,
+      [CommonColor.MID_GREEN]: 18,
+      [CommonColor.HIGH_GREEN]: 17,
     },
     noteToPosition: note => ({ x: note % 10 - 1, y: Math.floor(note / 10) - 1 }),
     positionToNote: position => (position.y + 1) * 10 + position.x + 1,

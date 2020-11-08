@@ -65,7 +65,7 @@ Launchpad.prototype = {
     while (this.LEDUpdateQueue.length > 0) {
       const currentUpdate = this.LEDUpdateQueue.shift()
       this.sendNote(
-        this.deviceInfo.positionToNote(currentUpdate.position),
+        clamp128(this.deviceInfo.positionToNote(currentUpdate.position)),
         currentUpdate.value
       )
     }
@@ -78,53 +78,81 @@ Launchpad.prototype = {
   // Properties
 
   actions: {
-    [Button.ONE  ]: { press () {}, release () {}},
-    [Button.TWO  ]: { press () {}, release () {}},
+    [Button.ONE  ]: {
+      press () { this.sustain = !this.sustain },
+      release () { this.sustain = !this.sustain },
+    },
+    [Button.TWO  ]: {
+      press () { this.sustain = !this.sustain },
+      release () {},
+    },
     [Button.THREE]: {
       press () { this.root -= this.xStep; this.update() },
-      release () {}
+      release () {},
     },
     [Button.FOUR ]: {
       press () { this.root += this.xStep; this.update() },
-      release () {}
+      release () {},
     },
-    [Button.FIVE ]: { press () {}, release () {}},
+    [Button.FIVE ]: { press () {}, release () {} },
     [Button.SIX  ]: {
       press () { this.offset += this.xStep; this.update() },
-      release () {}
+      release () {},
     },
     [Button.SEVEN]: {
       press () { this.offset -= this.xStep; this.update() },
-      release () {}
+      release () {},
     },
-    [Button.EIGHT]: { press () {}, release () {}},
-    [Button.A    ]: { press () {}, release () {}},
+    [Button.EIGHT]: { press () {}, release () {} },
+    [Button.A    ]: { press () {}, release () {} },
     [Button.B    ]: {
       press () { this.offset -= this.yStep; this.update() },
-      release () {}
+      release () {},
     }
     ,
     [Button.C    ]: {
       press () { this.offset += this.yStep; this.update() },
-      release () {}
+      release () {},
     },
-    [Button.D    ]: { press () {}, release () {}},
+    [Button.D    ]: { press () {}, release () {} },
     [Button.E    ]: {
       press () { this.root += this.yStep; this.update() },
-      release () {}
+      release () {},
     },
     [Button.F    ]: {
       press () { this.root -= this.yStep; this.update() },
-      release () {}
+      release () {},
     },
-    [Button.G    ]: { press () {}, release () {}},
-    [Button.H    ]: { press () {}, release () {}},
+    [Button.G    ]: { press () {}, release () {} },
+    [Button.H    ]: { press () {}, release () {} },
   },
 
   // Getters, setters
 
   set root (r) { this._root = ((r % 12) + 12) % 12; this.updateKeyIndicator() },
   get root () { return this._root },
+
+  set sustain (v) {
+    this._sustain = v
+    // this.userControls.getControl(1).set(this.sustain ? 127 : 0, 128)
+
+    this.noteInput.sendRawMidiEvent(
+      MIDIMessageType.CONTROL_CHANGE,
+      64,
+      v ? 127 : 0
+    )
+
+    this.updateLED(
+      { x: 8, y: 8 },
+      v
+        ? this.deviceInfo.colors[defaultColor[ColorPurpose.SUSTAIN]]
+        : this.deviceInfo.colors[CommonColor.OFF]
+    )
+  },
+
+  get sustain () {
+    return this._sustain
+  },
 
   // set xStep (v) { this._xStep = v; this.update() },
   // get xStep () { return this._xStep },
@@ -156,7 +184,12 @@ Launchpad.prototype = {
     } else {
       const button = this.deviceInfo.midiEventToButton(status, data1)
       if (button) {
-        this.actions[button][data2 ? 'press' : 'release'].apply(this)
+        this.actions[button][data2 > 0 ? 'press' : 'release'].apply(this)
+      } else {
+        this.updateColorForPosition(
+          this.deviceInfo.noteToPosition(data1),
+          data2 > 0
+        )
       }
     }
   },
@@ -181,9 +214,9 @@ Launchpad.prototype = {
   },
 
   getNoteForPosition (position) {
-    return Math.max(0, Math.min(127,
+    return clamp128(
       this.offset + position.y * this.yStep + position.x * this.xStep
-    ))
+    )
   },
 
   updateKeyIndicator () {
@@ -226,13 +259,13 @@ Launchpad.prototype = {
       position,
       this.deviceInfo.colors[defaultColor[colorPurposeForRole[
         scaleRoles[(this.getNoteForPosition(position) - this.root + 12) % 12]
-      ](false)]]
+      ](pressed)]]
     )
   },
 
   updateColors () {
     range(8).forEach(y => {range(8).forEach(x => {
-      this.updateColorForPosition({ y, x }, 20)
+      this.updateColorForPosition({ y, x }, false)
     }, this) }, this)
   },
 }
