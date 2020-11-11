@@ -27,6 +27,7 @@ const ColorPurpose = {
   ROOT_DIM   : 'ROOT_DIM'   , ROOT_BRIGHT   : 'ROOT_BRIGHT'   ,
 
   KEY_INDICATOR: 'KEY_INDICATOR', KEY_INDICATOR_SHARP: 'KEY_INDICATOR_SHARP',
+  NOTE_INDICATOR: 'NOTE_INDICATOR', NOTE_INDICATOR_SHARP: 'NOTE_INDICATOR_SHARP',
 
   SUSTAIN: 'SUSTAIN',
 }
@@ -56,6 +57,9 @@ const defaultColor = {
 
   [ColorPurpose.KEY_INDICATOR]: CommonColor.LOW_GREEN,
   [ColorPurpose.KEY_INDICATOR_SHARP]: CommonColor.LOW_RED,
+
+  [ColorPurpose.NOTE_INDICATOR]: CommonColor.HIGH_GREEN,
+  [ColorPurpose.NOTE_INDICATOR_SHARP]: CommonColor.HIGH_RED,
 
   [ColorPurpose.SUSTAIN]: CommonColor.MID_RED,
 }
@@ -123,18 +127,18 @@ const sideButtons = [
 ]
 
 const numberedNotes = [
+  { base: 0, sharp: false },
+  { base: 0, sharp: true },
   { base: 1, sharp: false },
   { base: 1, sharp: true },
   { base: 2, sharp: false },
-  { base: 2, sharp: true },
   { base: 3, sharp: false },
+  { base: 3, sharp: true },
   { base: 4, sharp: false },
   { base: 4, sharp: true },
   { base: 5, sharp: false },
   { base: 5, sharp: true },
   { base: 6, sharp: false },
-  { base: 6, sharp: true },
-  { base: 7, sharp: false },
 ]
 
 const SysExMessages = {
