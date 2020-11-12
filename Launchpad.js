@@ -58,6 +58,8 @@ Launchpad.prototype = {
 
     this.offset = 30
 
+    this.shift = false
+
     this.update()
   },
 
@@ -83,53 +85,46 @@ Launchpad.prototype = {
   // Properties
 
   actions: {
-    [Button.ONE  ]: {
+    [Button.ONE]: {
       press () { this.sustain = !this.sustain },
       release () { this.sustain = !this.sustain },
     },
-    [Button.TWO  ]: {
-      press () { this.sustain = !this.sustain },
-      release () {},
-    },
-    [Button.THREE]: {
-      press () { this.root -= this.xStep; this.update() },
-      release () {},
-    },
-    [Button.FOUR ]: {
-      press () { this.root += this.xStep; this.update() },
-      release () {},
-    },
-    [Button.FIVE ]: { press () {}, release () {} },
-    [Button.SIX  ]: {
+    [Button.TWO]: { press () { this.sustain = !this.sustain } },
+    [Button.THREE]: { press () { this.cursorTrack.selectPrevious() } },
+    [Button.FOUR]: { press () { this.cursorTrack.selectNext() } },
+    [Button.FIVE]: {},
+    [Button.SIX]: {
       press () { this.offset += this.xStep; this.update() },
-      release () {},
+      pressShifted () { this.root -= this.xStep; this.update() },
     },
     [Button.SEVEN]: {
       press () { this.offset -= this.xStep; this.update() },
-      release () {},
+      pressShifted () { this.root += this.xStep; this.update() },
     },
-    [Button.EIGHT]: { press () {}, release () {} },
-    [Button.A    ]: { press () {}, release () {} },
-    [Button.B    ]: {
+    [Button.EIGHT]: {
+      press () { this.shift = true },
+      releaseShifted () { this.shift = false },
+    },
+    [Button.A]: {
+      press () { this.root++; this.offset++; this.update() },
+      pressShifted () { this.offset += 12; this.update() },
+    },
+    [Button.B]: {
       press () { this.offset -= this.yStep; this.update() },
-      release () {},
-    }
-    ,
-    [Button.C    ]: {
+      pressShifted () { this.root += this.yStep; this.update() },
+    },
+    [Button.C]: {
       press () { this.offset += this.yStep; this.update() },
-      release () {},
+      pressShifted () { this.root -= this.yStep; this.update() },
     },
-    [Button.D    ]: { press () {}, release () {} },
-    [Button.E    ]: {
-      press () { this.root += this.yStep; this.update() },
-      release () {},
+    [Button.D]: {
+      press () { this.root--; this.offset--; this.update() },
+      pressShifted () { this.offset -= 12; this.update() },
     },
-    [Button.F    ]: {
-      press () { this.root -= this.yStep; this.update() },
-      release () {},
-    },
-    [Button.G    ]: { press () {}, release () {} },
-    [Button.H    ]: { press () {}, release () {} },
+    [Button.E]: { press () { this.cursorTrack.volume().inc(0.1) } },
+    [Button.F]: { press () { this.cursorTrack.volume().inc(-0.1) } },
+    [Button.G]: { pressShifted () { this.reset() } },
+    [Button.H]: { pressShifted () { this.exit() } },
   },
 
   // Getters, setters
@@ -189,7 +184,12 @@ Launchpad.prototype = {
     } else {
       const button = this.deviceInfo.midiEventToButton(status, data1)
       if (button) {
-        this.actions[button][data2 > 0 ? 'press' : 'release'].apply(this)
+        const action = (
+          `${data2 > 0 ? 'press' : 'release'}${this.shift ? 'Shifted' : ''}`
+        )
+        if (action in this.actions[button]) {
+          this.actions[button][action].apply(this)
+        }
       } else {
         // this.updateColorForPosition(
         //   this.deviceInfo.noteToPosition(data1),

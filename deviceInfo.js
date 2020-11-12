@@ -14,9 +14,6 @@ range(4).forEach(r => {range(4).forEach(g => {
     miniColors[miniHues[r][g]] = makeMiniColor(r, g)
 })})
 
-// const noteSelector = n => (status, data1) => isNoteOn(status) && data1 === n
-// const ccSelector = n => (status, data1) => isChannelController(status) && data1 === n
-
 const deviceInfo = {
   mini: {
     name: 'Launchpad Mini',
@@ -32,24 +29,6 @@ const deviceInfo = {
         ? sideButtons[data1 >> 4]
         : null
     ),
-    // buttonCriteria: {
-    //   [Button.ONE  ]: ccSelector(104),
-    //   [Button.TWO  ]: ccSelector(105),
-    //   [Button.THREE]: ccSelector(106),
-    //   [Button.FOUR ]: ccSelector(107),
-    //   [Button.FIVE ]: ccSelector(108),
-    //   [Button.SIX  ]: ccSelector(109),
-    //   [Button.SEVEN]: ccSelector(110),
-    //   [Button.EIGHT]: ccSelector(111),
-    //   [Button.A    ]: noteSelector(0x08),
-    //   [Button.B    ]: noteSelector(0x18),
-    //   [Button.C    ]: noteSelector(0x28),
-    //   [Button.D    ]: noteSelector(0x38),
-    //   [Button.E    ]: noteSelector(0x48),
-    //   [Button.F    ]: noteSelector(0x58),
-    //   [Button.G    ]: noteSelector(0x68),
-    //   [Button.H    ]: noteSelector(0x78),
-    // },
     winddown: lp => { lp.sendMidi(176, 0, 0) },
   },
   x: {
@@ -88,24 +67,6 @@ const deviceInfo = {
         ? sideButtons[8 - ((data1 - 9) / 10)]
         : null
     ),
-    // buttonCriteria: {
-    //   [Button.ONE  ]: ccSelector(91),
-    //   [Button.TWO  ]: ccSelector(92),
-    //   [Button.THREE]: ccSelector(93),
-    //   [Button.FOUR ]: ccSelector(94),
-    //   [Button.FIVE ]: ccSelector(95),
-    //   [Button.SIX  ]: ccSelector(96),
-    //   [Button.SEVEN]: ccSelector(97),
-    //   [Button.EIGHT]: ccSelector(98),
-    //   [Button.A    ]: ccSelector(89),
-    //   [Button.B    ]: ccSelector(79),
-    //   [Button.C    ]: ccSelector(69),
-    //   [Button.D    ]: ccSelector(59),
-    //   [Button.E    ]: ccSelector(49),
-    //   [Button.F    ]: ccSelector(39),
-    //   [Button.G    ]: ccSelector(29),
-    //   [Button.H    ]: ccSelector(19),
-    // },
     winddown: lp => { lp.sendSysex('F0002029020C0E00F7') },
   }
 }
