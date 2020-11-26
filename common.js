@@ -31,6 +31,7 @@ const ColorPurpose = {
 
   SUSTAIN: 'SUSTAIN',
   TAP_TEMPO: 'TAP_TEMPO',
+  PITCHBEND: 'PITCHBEND',
 }
 
 const CommonColor = {
@@ -64,6 +65,7 @@ const defaultColor = {
 
   [ColorPurpose.SUSTAIN]: CommonColor.MID_RED,
   [ColorPurpose.TAP_TEMPO]: CommonColor.MID_AMBER,
+  [ColorPurpose.PITCHBEND]: CommonColor.LOW_YELLOW,
 }
 
 const colorPurposeForRole = {

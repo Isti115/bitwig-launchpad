@@ -64,7 +64,11 @@ Launchpad.prototype = {
 
     this.offset = 30
 
+    this.sustain = false
+    this.pitchBend = 0
+
     this.shift = false
+    this.rootChooseMode = undefined
 
     this.update()
   },
@@ -102,9 +106,18 @@ Launchpad.prototype = {
 
       pressShifted () { this.noteInput.noteLatch().isEnabled().toggle() },
     },
-    [Button.THREE]: { press () { this.cursorTrack.selectPrevious() } },
-    [Button.FOUR]: { press () { this.cursorTrack.selectNext() } },
-    [Button.FIVE]: {},
+    [Button.THREE]: {
+      press () { this.pitchBend-- },
+      pressShifted () { this.cursorTrack.selectPrevious() },
+    },
+    [Button.FOUR]: {
+      press () { this.pitchBend++ },
+      pressShifted () { this.cursorTrack.selectNext() },
+    },
+    [Button.FIVE]: {
+      press () { this.rootChooseMode = 0 }, // Choose 'do'
+      pressShifted () { this.rootChooseMode = 9 }, // Choose 'la'
+    },
     [Button.SIX]: {
       press () { this.offset += this.xStep; this.update() },
       pressShifted () { this.root -= this.xStep; this.update() },
@@ -185,6 +198,33 @@ Launchpad.prototype = {
     return this._sustain
   },
 
+  set pitchBend (v) {
+    this._pitchBend = clamp(-10, 10)(v)
+
+    this.noteInput.sendRawMidiEvent(
+      MIDIMessageType.PITCH_BEND,
+      64,
+      Math.round(63.5 + this._pitchBend * 6.35)
+    )
+
+    this.updateLED(
+      { x: 2, y: 8 },
+      this._pitchBend < 0
+        ? this.deviceInfo.colors[defaultColor[ColorPurpose.PITCHBEND]]
+        : this.deviceInfo.colors[CommonColor.OFF]
+    )
+    this.updateLED(
+      { x: 3, y: 8 },
+      this._pitchBend > 0
+        ? this.deviceInfo.colors[defaultColor[ColorPurpose.PITCHBEND]]
+        : this.deviceInfo.colors[CommonColor.OFF]
+    )
+  },
+
+  get pitchBend () {
+    return this._pitchBend
+  },
+
   // set xStep (v) { this._xStep = v; this.update() },
   // get xStep () { return this._xStep },
 
@@ -212,6 +252,10 @@ Launchpad.prototype = {
         this.getNoteForPosition(this.deviceInfo.noteToPosition(data1)),
         data2
       )
+    } else if (this.rootChooseMode !== undefined && isNoteOn(status)) {
+      this.root = this.keyTranslationTable[data1] - this.rootChooseMode
+      this.rootChooseMode = undefined
+      this.update()
     } else {
       const button = this.deviceInfo.midiEventToButton(status, data1)
       if (button) {
