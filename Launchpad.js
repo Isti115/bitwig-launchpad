@@ -36,7 +36,13 @@ Launchpad.prototype = {
     this.midiIn.setSysexCallback(this.onSysex)
     this.midiIn.setMidiCallback(this.onMidi)
 
-    this.cursorTrack = host.createCursorTrack(0, 0)
+    this.transport = host.createTransport()
+
+    this.cursorTrack = host.createCursorTrack(
+      this.deviceInfo.name.replace(/ /,'_').toUpperCase(),
+      this.deviceInfo.name,
+      0, 0, true
+    )
     this.cursorTrack.addNoteObserver(this.noteObserver)
 
     this.deviceInfo.setup(this)
@@ -88,8 +94,14 @@ Launchpad.prototype = {
     [Button.ONE]: {
       press () { this.sustain = !this.sustain },
       release () { this.sustain = !this.sustain },
+
+      pressShifted () { this.noteInput.arpeggiator().isEnabled().toggle() },
     },
-    [Button.TWO]: { press () { this.sustain = !this.sustain } },
+    [Button.TWO]: {
+      press () { this.sustain = !this.sustain },
+
+      pressShifted () { this.noteInput.noteLatch().isEnabled().toggle() },
+    },
     [Button.THREE]: { press () { this.cursorTrack.selectPrevious() } },
     [Button.FOUR]: { press () { this.cursorTrack.selectNext() } },
     [Button.FIVE]: {},
@@ -121,10 +133,29 @@ Launchpad.prototype = {
       press () { this.root--; this.offset--; this.update() },
       pressShifted () { this.offset -= 12; this.update() },
     },
-    [Button.E]: { press () { this.cursorTrack.volume().inc(0.1) } },
-    [Button.F]: { press () { this.cursorTrack.volume().inc(-0.1) } },
+    [Button.E]: {
+      press () { this.cursorTrack.volume().inc(0.1) },
+      pressShifted () { this.cursorTrack.volume().inc(0.02) },
+    },
+    [Button.F]: {
+      press () { this.cursorTrack.volume().inc(-0.1) },
+      pressShifted () { this.cursorTrack.volume().inc(-0.02) },
+    },
     [Button.G]: { pressShifted () { this.reset() } },
-    [Button.H]: { pressShifted () { this.exit() } },
+    [Button.H]: {
+      press () {
+        this.transport.tapTempo()
+        this.updateLED(
+          { y: 0, x: 8 },
+          this.deviceInfo.colors[defaultColor[ColorPurpose.TAP_TEMPO]]
+        )
+      },
+      release () {
+        this.updateLED({ y: 0, x: 8 }, this.deviceInfo.colors[CommonColor.OFF])
+      },
+
+      pressShifted () { this.exit() },
+    },
   },
 
   // Getters, setters

@@ -18,7 +18,10 @@ const deviceInfo = {
   mini: {
     name: 'Launchpad Mini',
     sysExId: 'f07e0006020020293600000000000302f7',
-    setup: lp => { lp.sendMidi(176, 0, 0) },
+    setup: lp => {
+      lp.sendMidi(176, 0, 0)
+      lp.noteInput.setVelocityTranslationTable(range(128).map(() => 64))
+    },
     colors: miniColors,
     noteToPosition: note => ({ x: note & 0xF, y: 7 - (note >> 4) }),
     positionToNote: position => (7 - position.y) * 16 + position.x,
@@ -60,6 +63,9 @@ const deviceInfo = {
     },
     noteToPosition: note => ({ x: note % 10 - 1, y: Math.floor(note / 10) - 1 }),
     positionToNote: position => (position.y + 1) * 10 + position.x + 1,
+    // Mirrored and rotated layout:
+    // noteToPosition: note => ({ x: note % 10 - 1, y: 7 - (Math.floor(note / 10) - 1) }),
+    // positionToNote: position => ((7 - position.y) + 1) * 10 + position.x + 1,
     midiEventToButton: (status, data1) => (
       (isChannelController(status) && 91 <= data1 && data1 <= 98)
         ? topButtons[data1 - 91]

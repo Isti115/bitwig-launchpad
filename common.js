@@ -30,6 +30,7 @@ const ColorPurpose = {
   NOTE_INDICATOR: 'NOTE_INDICATOR', NOTE_INDICATOR_SHARP: 'NOTE_INDICATOR_SHARP',
 
   SUSTAIN: 'SUSTAIN',
+  TAP_TEMPO: 'TAP_TEMPO',
 }
 
 const CommonColor = {
@@ -62,6 +63,7 @@ const defaultColor = {
   [ColorPurpose.NOTE_INDICATOR_SHARP]: CommonColor.HIGH_RED,
 
   [ColorPurpose.SUSTAIN]: CommonColor.MID_RED,
+  [ColorPurpose.TAP_TEMPO]: CommonColor.MID_AMBER,
 }
 
 const colorPurposeForRole = {
